@@ -29,7 +29,15 @@ public class LostPetServiceImpl implements LostPetService {
 
     @Override
     public LostPetDto persistLostPet(LostPetDto lostPetDto) {
-        LostPet savedPet = lostPetRepository.save(LostPetMapper.mapToEntity(lostPetDto));
+        LostPet lostPetEntity = LostPetMapper.mapToEntity(lostPetDto);
+        LocalDateTime currentLocalDate = LocalDateTime.now();
+        lostPetEntity.setCreatedAt(currentLocalDate);
+
+        if (lostPetDto.getLastSeen() == null) {
+            lostPetEntity.setLastSeen(currentLocalDate);
+        }
+
+        LostPet savedPet = lostPetRepository.save(lostPetEntity);
         return LostPetMapper.mapToDto(savedPet);
     }
 }

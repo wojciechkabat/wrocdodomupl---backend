@@ -28,7 +28,14 @@ public class FoundPetServiceImpl implements FoundPetService {
 
     @Override
     public FoundPetDto persistFoundPet(FoundPetDto foundPetDto) {
-        FoundPet savedPet = foundPetRepository.save(FoundPetMapper.mapToEntity(foundPetDto));
+        FoundPet foundPetEntity = FoundPetMapper.mapToEntity(foundPetDto);
+        LocalDateTime currentLocalDate = LocalDateTime.now();
+        foundPetEntity.setCreatedAt(currentLocalDate);
+
+        if (foundPetDto.getWhenSeen() == null) {
+            foundPetEntity.setWhenSeen(currentLocalDate);
+        }
+        FoundPet savedPet = foundPetRepository.save(foundPetEntity);
         return FoundPetMapper.mapToDto(savedPet);
     }
 }
