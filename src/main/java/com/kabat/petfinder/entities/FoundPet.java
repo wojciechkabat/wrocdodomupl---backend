@@ -14,16 +14,13 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderMethodName = "aLostPet")
-@Table(name = "lost_pets")
-public class LostPet {
+@Builder(builderMethodName = "aFoundPet")
+@Table(name = "found_pets")
+public class FoundPet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "name")
-    @NotNull
-    private String name;
     @Column(name = "additionalInfo")
     private String additionalInfo;
     @Column(name = "phone")
@@ -36,13 +33,12 @@ public class LostPet {
     private PetType type;
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    @NotNull
     private Gender gender;
     @Column(name = "picture_url")
     private String pictureUrl;
-    @Column(name = "last_seen")
+    @Column(name = "when_seen")
     @NotNull
-    private LocalDateTime lastSeen;
+    private LocalDateTime whenSeen;
     @Column(name = "created_at")
     @NotNull
     private LocalDateTime createdAt;
