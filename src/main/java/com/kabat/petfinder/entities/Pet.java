@@ -41,7 +41,7 @@ public class Pet {
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "pet_id", referencedColumnName="id")
     private List<PetPicture> pictures;
     @Column(name = "last_seen")

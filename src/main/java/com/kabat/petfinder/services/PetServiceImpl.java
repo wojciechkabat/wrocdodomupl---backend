@@ -34,6 +34,7 @@ public class PetServiceImpl implements PetService {
         LocalDateTime currentLocalDate = LocalDateTime.now();
         petEntity.setCreatedAt(currentLocalDate);
         petEntity.setId(UUID.randomUUID());
+        petEntity.getPictures().forEach(picture -> picture.setPetId(petEntity.getId()));
 
         if (petDto.getLastSeen() == null) {
             petEntity.setLastSeen(currentLocalDate);
