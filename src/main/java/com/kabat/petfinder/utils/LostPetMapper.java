@@ -24,7 +24,7 @@ public class LostPetMapper {
                 .createdAt(lostPet.getCreatedAt())
                 .id(lostPet.getId())
                 .type(lostPet.getType())
-                .pictureUrl(lostPet.getPictureUrl())
+                .pictureUrls(lostPet.getPictureUrls())
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class LostPetMapper {
                 .createdAt(lostPetDto.getCreatedAt())
                 .id(lostPetDto.getId())
                 .type(lostPetDto.getType())
-                .pictureUrl(lostPetDto.getPictureUrl())
+                .pictureUrls(lostPetDto.getPictureUrls())
                 .build();
     }
 }

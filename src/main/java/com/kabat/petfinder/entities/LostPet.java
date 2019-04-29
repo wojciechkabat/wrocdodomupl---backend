@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -38,8 +39,10 @@ public class LostPet {
     @Column(name = "gender")
     @NotNull
     private Gender gender;
-    @Column(name = "picture_url")
-    private String pictureUrl;
+    @ElementCollection
+    @CollectionTable(name = "lost_pet_pictures", joinColumns = @JoinColumn(name = "pet_id"))
+    @Column(name = "pictureUrl")
+    private List<String> pictureUrls;
     @Column(name = "last_seen")
     @NotNull
     private LocalDateTime lastSeen;

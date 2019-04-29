@@ -11,6 +11,3 @@ CREATE TABLE found_pets (
   created_at timestamp NOT NULL,
   when_seen timestamp NOT NULL
 );
-
-ALTER TABLE lost_pets ALTER COLUMN longitude decimal(9,6) NOT NULL;
-ALTER TABLE lost_pets ALTER COLUMN latitude decimal(9,6) NOT NULL;
