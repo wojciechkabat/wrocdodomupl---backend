@@ -13,4 +13,7 @@ import java.util.List;
 public interface LostPetRepository extends JpaRepository<LostPet, Long> {
     @Query("select lp from LostPet lp where lp.createdAt >= :creationDateTime")
     List<LostPet> findAllWithCreationDateTimeAfter(@Param("creationDateTime") LocalDateTime creationDateTime);
+
+    @Query("select lp from LostPet lp where lp.createdAt < :creationDateTime")
+    List<LostPet> findAllWithCreationDateTimeBefore(@Param("creationDateTime") LocalDateTime creationDateTime);
 }
