@@ -26,7 +26,7 @@ public class LostPetDto {
     private PetType type;
     @NonNull
     private Gender gender;
-    private List<String> pictureUrls;
+    private List<PictureDto> pictures;
     @NonNull
     private CoordinatesDto coordinates;
     private LocalDateTime lastSeen;

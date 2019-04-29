@@ -39,10 +39,9 @@ public class LostPet {
     @Column(name = "gender")
     @NotNull
     private Gender gender;
-    @ElementCollection
-    @CollectionTable(name = "lost_pet_pictures", joinColumns = @JoinColumn(name = "pet_id"))
-    @Column(name = "pictureUrl")
-    private List<String> pictureUrls;
+    @OneToMany
+    @JoinColumn(name = "pet_id", referencedColumnName="id")
+    private List<LostPetPicture> pictures;
     @Column(name = "last_seen")
     @NotNull
     private LocalDateTime lastSeen;

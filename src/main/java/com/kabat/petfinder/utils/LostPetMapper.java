@@ -2,8 +2,12 @@ package com.kabat.petfinder.utils;
 
 import com.kabat.petfinder.dtos.CoordinatesDto;
 import com.kabat.petfinder.dtos.LostPetDto;
+import com.kabat.petfinder.dtos.PictureDto;
 import com.kabat.petfinder.entities.Coordinates;
 import com.kabat.petfinder.entities.LostPet;
+import com.kabat.petfinder.entities.LostPetPicture;
+
+import static java.util.stream.Collectors.toList;
 
 public class LostPetMapper {
 
@@ -24,7 +28,15 @@ public class LostPetMapper {
                 .createdAt(lostPet.getCreatedAt())
                 .id(lostPet.getId())
                 .type(lostPet.getType())
-                .pictureUrls(lostPet.getPictureUrls())
+                .pictures(
+                        lostPet.getPictures()
+                                .stream()
+                                .map(picture -> PictureDto.aPictureDto()
+                                        .pictureId(picture.getPictureId())
+                                        .pictureUrl(picture.getPictureUrl())
+                                        .build())
+                                .collect(toList())
+                )
                 .build();
     }
 
@@ -45,7 +57,16 @@ public class LostPetMapper {
                 .createdAt(lostPetDto.getCreatedAt())
                 .id(lostPetDto.getId())
                 .type(lostPetDto.getType())
-                .pictureUrls(lostPetDto.getPictureUrls())
+                .pictures(
+                        lostPetDto.getPictures()
+                                .stream()
+                                .map(pictureDto -> LostPetPicture.aLostPetPicture()
+                                        .petId(lostPetDto.getId())
+                                        .pictureId(pictureDto.getPictureId())
+                                        .pictureUrl(pictureDto.getPictureUrl())
+                                        .build())
+                        .collect(toList())
+                )
                 .build();
     }
 }
