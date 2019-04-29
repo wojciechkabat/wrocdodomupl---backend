@@ -3,13 +3,13 @@ package com.kabat.petfinder.services;
 import com.cloudinary.Cloudinary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static com.cloudinary.utils.ObjectUtils.asMap;
 import static com.kabat.petfinder.utils.CloudinaryConstants.*;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 
 
 @Service
@@ -27,16 +27,13 @@ public class CloudinaryPictureServiceImpl implements PictureService {
         );
     }
 
-    @Async
-    public void deleteFromRemoteServerById(String pictureId) {
-        LOG.info("Cloudinary - Attempting to delete picture with id: " + pictureId);
-        if(pictureId != null) {
-            try {
-                cloudinary.api().deleteResources(singletonList(pictureId), emptyMap());
-                LOG.info("Cloudinary - Deleted picture with id: " + pictureId);
-            } catch (Exception e) {
-                LOG.error("Cloudinary error - Could not delete image with id: " + pictureId);
-            }
+    public void deleteFromRemoteServerByIds(List<String> pictureIds) {
+        LOG.info("Cloudinary - Attempting to delete picture with ids: {}", pictureIds);
+        try {
+            cloudinary.api().deleteResources(pictureIds, emptyMap());
+            LOG.info("Cloudinary - Deleted pictures with ids: {}", pictureIds);
+        } catch (Exception e) {
+            LOG.error("Cloudinary error - Could not delete pictures with ids: {}", pictureIds);
         }
     }
 }

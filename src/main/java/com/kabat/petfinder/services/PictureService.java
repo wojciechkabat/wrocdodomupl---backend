@@ -1,5 +1,7 @@
 package com.kabat.petfinder.services;
 
+import java.util.List;
+
 public interface PictureService {
-    void deleteFromRemoteServerById(String pictureId);
+    void deleteFromRemoteServerByIds(List<String> pictureIds);
 }
