@@ -1,8 +1,8 @@
-CREATE TABLE lost_pet_pictures (
+CREATE TABLE pet_pictures (
   picture_id varchar(60) PRIMARY KEY,
   picture_url varchar(500),
-  pet_id BIGSERIAL
+  pet_id UUID
 );
 
-ALTER TABLE lost_pet_pictures ADD CONSTRAINT fk_pet_id
-  FOREIGN KEY (pet_id) REFERENCES lost_pets (id);
+ALTER TABLE pet_pictures ADD CONSTRAINT fk_pet_id
+  FOREIGN KEY (pet_id) REFERENCES pets (id);

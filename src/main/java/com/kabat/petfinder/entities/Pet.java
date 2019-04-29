@@ -10,38 +10,40 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderMethodName = "aLostPet")
-@Table(name = "lost_pets")
-public class LostPet {
+@Builder(builderMethodName = "aPet")
+@Table(name = "pets")
+public class Pet {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
     @Column(name = "name")
-    @NotNull
     private String name;
     @Column(name = "additionalInfo")
     private String additionalInfo;
     @Column(name = "phone")
     private String phoneNumber;
     @Column(name = "email")
+    @NotNull
     private String email;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PetStatus status;
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     @NotNull
     private PetType type;
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    @NotNull
     private Gender gender;
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "pet_id", referencedColumnName="id")
-    private List<LostPetPicture> pictures;
+    private List<PetPicture> pictures;
     @Column(name = "last_seen")
     @NotNull
     private LocalDateTime lastSeen;

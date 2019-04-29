@@ -1,7 +1,7 @@
 package com.kabat.petfinder.services;
 
-import com.kabat.petfinder.entities.LostPet;
-import com.kabat.petfinder.repositories.LostPetRepository;
+import com.kabat.petfinder.entities.Pet;
+import com.kabat.petfinder.repositories.PetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,20 +17,20 @@ public class DataCleanUpService {
     private static final Logger LOG = LoggerFactory.getLogger(DataCleanUpService.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private final LostPetRepository lostPetRepository;
+    private final PetRepository petRepository;
 
-    public DataCleanUpService(LostPetRepository lostPetRepository) {
-        this.lostPetRepository = lostPetRepository;
+    public DataCleanUpService(PetRepository petRepository) {
+        this.petRepository = petRepository;
     }
 
-    @Scheduled(cron = "0 0 1 ? * * *")
+    @Scheduled(cron = "0 0 0 25 12 ?")
     public void cleanUpLostPets() {
         LOG.info("Commencing cleaning up of LOST pets: {}", dateFormat.format(new Date()));
         LocalDateTime nowMinus30Days = LocalDateTime.now().minusDays(30);
-        List<LostPet> lostPetsOlderThan30Days = lostPetRepository.findAllWithCreationDateTimeBefore(nowMinus30Days);
-        LOG.info("Number of LOST pets to delete: {}", lostPetsOlderThan30Days.size());
+        List<Pet> petsOlderThan30Days = petRepository.findAllWithCreationDateTimeBefore(nowMinus30Days);
+        LOG.info("Number of LOST pets to delete: {}", petsOlderThan30Days.size());
 
-        for (LostPet petToDelete : lostPetsOlderThan30Days) {
+        for (Pet petToDelete : petsOlderThan30Days) {
 
         }
     }

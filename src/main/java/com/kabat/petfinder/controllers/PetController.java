@@ -1,9 +1,7 @@
 package com.kabat.petfinder.controllers;
 
-import com.kabat.petfinder.dtos.FoundPetDto;
-import com.kabat.petfinder.dtos.LostPetDto;
-import com.kabat.petfinder.services.FoundPetService;
-import com.kabat.petfinder.services.LostPetService;
+import com.kabat.petfinder.dtos.PetDto;
+import com.kabat.petfinder.services.PetService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,31 +11,24 @@ import java.util.List;
 @RequestMapping("pets")
 public class PetController {
 
-    private final LostPetService lostPetService;
-    private final FoundPetService foundPetService;
+    private final PetService petService;
 
-    public PetController(LostPetService lostPetService, FoundPetService foundPetService) {
-        this.lostPetService = lostPetService;
-        this.foundPetService = foundPetService;
+    public PetController(PetService petService) {
+        this.petService = petService;
+    }
+
+    @PostMapping("")
+    public PetDto persistNewPet(@RequestBody PetDto petDto) {
+        return petService.persistPet(petDto);
     }
 
     @GetMapping("/lost")
-    public List<LostPetDto> getPetsLostInTheLast30Days() {
-        return lostPetService.getLostPetsFromLast30Days();
-    }
-
-    @PostMapping("/lost")
-    public LostPetDto persistNewLostPet(@RequestBody LostPetDto lostPetDto) {
-        return lostPetService.persistLostPet(lostPetDto);
+    public List<PetDto> getPetsLostInTheLast30Days() {
+        return petService.getLostPetsFromLast30Days();
     }
 
     @GetMapping("/found")
-    public List<FoundPetDto> getPetsFoundInTheLast30Days() {
-        return foundPetService.getFoundPetsFromLast30Days();
-    }
-
-    @PostMapping("/found")
-    public FoundPetDto persistNewFoundPet(@RequestBody FoundPetDto foundPetDto) {
-        return foundPetService.persistFoundPet(foundPetDto);
+    public List<PetDto> getPetsFoundInTheLast30Days() {
+        return petService.getFoundPetsFromLast30Days();
     }
 }
