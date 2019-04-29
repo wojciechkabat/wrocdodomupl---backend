@@ -23,7 +23,7 @@ public class FoundPetMapper {
                 .createdAt(foundPet.getCreatedAt())
                 .id(foundPet.getId())
                 .type(foundPet.getType())
-                .pictureUrl(foundPet.getPictureUrl())
+                .pictureUrls(foundPet.getPictureUrls())
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class FoundPetMapper {
                 .createdAt(foundPetDto.getCreatedAt())
                 .id(foundPetDto.getId())
                 .type(foundPetDto.getType())
-                .pictureUrl(foundPetDto.getPictureUrl())
+                .pictureUrls(foundPetDto.getPictureUrls())
                 .build();
     }
 }

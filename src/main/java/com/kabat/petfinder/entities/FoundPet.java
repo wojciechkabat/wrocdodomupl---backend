@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -34,8 +35,10 @@ public class FoundPet {
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
-    @Column(name = "picture_url")
-    private String pictureUrl;
+    @ElementCollection
+    @CollectionTable(name = "found_pet_pictures", joinColumns = @JoinColumn(name = "pet_id"))
+    @Column(name = "pictureUrl")
+    private List<String> pictureUrls;
     @Column(name = "when_seen")
     @NotNull
     private LocalDateTime whenSeen;
