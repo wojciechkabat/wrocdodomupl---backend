@@ -5,6 +5,7 @@ import com.kabat.petfinder.services.PetService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin
@@ -23,7 +24,12 @@ public class PetController {
     }
 
     @GetMapping()
-    public List<PetDto> getAllPetsFromLast30Days() {
-        return petService.getAllPetsFromLast30Days();
+    public List<PetDto> getAllActivePetsFromLast30Days() {
+        return petService.getAllActivePetsFromLast30Days();
+    }
+
+    @PutMapping("confirmation")
+    public PetDto confirmPet(@RequestParam("token") UUID confirmationToken) {
+        return petService.confirmPet(confirmationToken);
     }
 }

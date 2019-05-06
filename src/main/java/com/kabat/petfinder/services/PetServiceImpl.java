@@ -3,6 +3,7 @@ package com.kabat.petfinder.services;
 import com.kabat.petfinder.dtos.PetDto;
 import com.kabat.petfinder.entities.ConfirmToken;
 import com.kabat.petfinder.entities.Pet;
+import com.kabat.petfinder.exceptions.IncorrectConfirmationTokenException;
 import com.kabat.petfinder.repositories.ConfirmTokenRepository;
 import com.kabat.petfinder.repositories.PetRepository;
 import com.kabat.petfinder.utils.PetMapper;
@@ -55,10 +56,22 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public List<PetDto> getAllPetsFromLast30Days() {
+    public List<PetDto> getAllActivePetsFromLast30Days() {
         return petRepository.findAllActiveWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
                 .stream()
                 .map(PetMapper::mapToDto)
                 .collect(toList());
+    }
+
+    @Override
+    @Transactional
+    public PetDto confirmPet(UUID confirmToken) {
+        ConfirmToken confirmationTokenEntity = confirmTokenRepository.findById(confirmToken)
+                .orElseThrow(() -> new IncorrectConfirmationTokenException(
+                        String.format("No confirmation token found with id: %s", confirmToken)
+                ));
+        Pet associatedPet = confirmationTokenEntity.getPet();
+        associatedPet.setActive(true);
+        return PetMapper.mapToDto(associatedPet);
     }
 }

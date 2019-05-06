@@ -2,6 +2,7 @@ package com.kabat.petfinder.services;
 
 import com.kabat.petfinder.dtos.PetDto;
 import com.kabat.petfinder.entities.*;
+import com.kabat.petfinder.exceptions.IncorrectConfirmationTokenException;
 import com.kabat.petfinder.repositories.ConfirmTokenRepository;
 import com.kabat.petfinder.repositories.PetRepository;
 import com.kabat.petfinder.utils.PetMapper;
@@ -11,9 +12,14 @@ import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.kabat.petfinder.dtos.CoordinatesDto.aCoordinatesDto;
 import static com.kabat.petfinder.dtos.PetDto.aPetDto;
+import static com.kabat.petfinder.entities.ConfirmToken.aConfirmToken;
+import static com.kabat.petfinder.entities.Pet.aPet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,7 +33,7 @@ public class PetServiceImplTest {
     private ConfirmTokenRepository confirmTokenRepository;
 
     @InjectMocks
-    private PetServiceImpl lostPetService;
+    private PetServiceImpl petService;
 
     @Captor
     private ArgumentCaptor<Pet> petArgumentCaptor;
@@ -51,7 +57,7 @@ public class PetServiceImplTest {
                                 .build())
                 .build();
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
-        lostPetService.persistPet(petDto);
+        petService.persistPet(petDto);
         verify(petRepository, times(1)).save(any());
     }
 
@@ -70,7 +76,7 @@ public class PetServiceImplTest {
                                 .build())
                 .build();
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
-        lostPetService.persistPet(petDto);
+        petService.persistPet(petDto);
         verify(petRepository, times(1)).save(petArgumentCaptor.capture());
         assertThat(petArgumentCaptor.getValue().isActive()).isFalse();
     }
@@ -91,7 +97,7 @@ public class PetServiceImplTest {
                 .build();
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
 
-        lostPetService.persistPet(petDto);
+        petService.persistPet(petDto);
 
         verify(petRepository).save(petArgumentCaptor.capture());
         assertThat(petArgumentCaptor.getValue().getCreatedAt()).isNotNull();
@@ -113,7 +119,7 @@ public class PetServiceImplTest {
                 .build();
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
 
-        lostPetService.persistPet(petDto);
+        petService.persistPet(petDto);
 
         verify(petRepository).save(petArgumentCaptor.capture());
         assertThat(petArgumentCaptor.getValue().getLastSeen()).isNotNull();
@@ -136,9 +142,43 @@ public class PetServiceImplTest {
                 .build();
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
 
-        lostPetService.persistPet(petDto);
+        petService.persistPet(petDto);
         verify(confirmTokenRepository, times(1)).save(confirmTokenArgumentCaptor.capture());
 
         assertThat(confirmTokenArgumentCaptor.getValue()).isNotNull();
+    }
+
+    @Test
+    public void shouldSetActiveToTrueWhenConfirmingPet() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(
+                Optional.of(
+                        aConfirmToken()
+                                .token(confirmationToken)
+                                .pet(pet)
+                                .build()
+                )
+        );
+        petService.confirmPet(confirmationToken);
+        assertThat(pet.isActive()).isTrue();
+    }
+
+    @Test(expected = IncorrectConfirmationTokenException.class)
+    public void shouldThrowExceptionWhenNoConfirmationTokenFound() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        petService.confirmPet(confirmationToken);
     }
 }
