@@ -72,6 +72,7 @@ public class PetServiceImpl implements PetService {
                 ));
         Pet associatedPet = confirmationTokenEntity.getPet();
         associatedPet.setActive(true);
+        confirmTokenRepository.delete(confirmationTokenEntity);
         return PetMapper.mapToDto(associatedPet);
     }
 }

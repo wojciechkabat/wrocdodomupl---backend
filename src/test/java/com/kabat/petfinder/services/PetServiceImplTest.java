@@ -181,4 +181,29 @@ public class PetServiceImplTest {
         UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
         petService.confirmPet(confirmationToken);
     }
+
+    @Test
+    public void shouldRemoveTokenWhenConfirmingPet() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        ConfirmToken confirmTokenEntity = aConfirmToken()
+                .token(confirmationToken)
+                .pet(pet)
+                .build();
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(confirmTokenEntity));
+        petService.confirmPet(confirmationToken);
+        verify(confirmTokenRepository, times(1)).delete(confirmTokenEntity);
+    }
 }
