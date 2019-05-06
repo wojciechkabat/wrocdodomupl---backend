@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class DataCleanUpService {
     }
 
     @Scheduled(cron = "0 1 1 * * ?")
+    @Transactional
     public void cleanUpPets() {
         LOG.info("===================== CLEAN UP STARTING =====================");
         LOG.info("Commencing cleaning up of pets: {}", dateFormat.format(new Date()));

@@ -8,4 +8,5 @@ public interface PetService {
     List<PetDto> getLostPetsFromLast30Days();
     PetDto persistPet(PetDto petDto);
     List<PetDto> getFoundPetsFromLast30Days();
+    List<PetDto> getAllPetsFromLast30Days();
 }

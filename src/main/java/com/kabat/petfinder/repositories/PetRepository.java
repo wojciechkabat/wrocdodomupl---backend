@@ -18,6 +18,9 @@ public interface PetRepository extends JpaRepository<Pet, UUID> {
     @Query("select lp from Pet lp where lp.status = com.kabat.petfinder.entities.PetStatus.FOUND AND lp.createdAt >= :creationDateTime")
     List<Pet> findAllFoundWithCreationDateTimeAfter(@Param("creationDateTime") LocalDateTime creationDateTime);
 
+    @Query("select lp from Pet lp where lp.createdAt >= :creationDateTime")
+    List<Pet> findAllWithCreationDateTimeAfter(@Param("creationDateTime") LocalDateTime localDateTime);
+
     @Query("select lp from Pet lp where lp.createdAt < :creationDateTime")
     List<Pet> findAllWithCreationDateTimeBefore(@Param("creationDateTime") LocalDateTime creationDateTime);
 }

@@ -31,4 +31,9 @@ public class PetController {
     public List<PetDto> getPetsFoundInTheLast30Days() {
         return petService.getFoundPetsFromLast30Days();
     }
+
+    @GetMapping()
+    public List<PetDto> getAllPetsFromLast30Days() {
+        return petService.getAllPetsFromLast30Days();
+    }
 }

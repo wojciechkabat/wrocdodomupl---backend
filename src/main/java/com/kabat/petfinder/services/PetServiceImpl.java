@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class PetServiceImpl implements PetService {
@@ -25,7 +26,7 @@ public class PetServiceImpl implements PetService {
         return petRepository.findAllLostWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
                 .stream()
                 .map(PetMapper::mapToDto)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override
@@ -49,6 +50,14 @@ public class PetServiceImpl implements PetService {
         return petRepository.findAllFoundWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
                 .stream()
                 .map(PetMapper::mapToDto)
-                .collect(Collectors.toList());
+                .collect(toList());
+    }
+
+    @Override
+    public List<PetDto> getAllPetsFromLast30Days() {
+        return petRepository.findAllWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
+                .stream()
+                .map(PetMapper::mapToDto)
+                .collect(toList());
     }
 }

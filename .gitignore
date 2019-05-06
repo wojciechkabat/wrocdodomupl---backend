@@ -1,5 +1,6 @@
 HELP.md
 /target/
+src/main/java/resources/cloudinary-config.properties
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
