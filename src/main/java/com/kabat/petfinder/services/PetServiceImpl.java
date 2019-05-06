@@ -22,14 +22,6 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public List<PetDto> getLostPetsFromLast30Days() {
-        return petRepository.findAllLostWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
-                .stream()
-                .map(PetMapper::mapToDto)
-                .collect(toList());
-    }
-
-    @Override
     public PetDto persistPet(PetDto petDto) {
         Pet petEntity = PetMapper.mapToEntity(petDto);
         LocalDateTime currentLocalDate = LocalDateTime.now();
@@ -43,14 +35,6 @@ public class PetServiceImpl implements PetService {
 
         Pet savedPet = petRepository.save(petEntity);
         return PetMapper.mapToDto(savedPet);
-    }
-
-    @Override
-    public List<PetDto> getFoundPetsFromLast30Days() {
-        return petRepository.findAllFoundWithCreationDateTimeAfter(LocalDateTime.now().minusDays(30))
-                .stream()
-                .map(PetMapper::mapToDto)
-                .collect(toList());
     }
 
     @Override
