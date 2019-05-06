@@ -12,8 +12,8 @@ import java.util.UUID;
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, UUID> {
-    @Query("select lp from Pet lp where lp.createdAt >= :creationDateTime")
-    List<Pet> findAllWithCreationDateTimeAfter(@Param("creationDateTime") LocalDateTime localDateTime);
+    @Query("select lp from Pet lp where lp.active = true and lp.createdAt >= :creationDateTime")
+    List<Pet> findAllActiveWithCreationDateTimeAfter(@Param("creationDateTime") LocalDateTime localDateTime);
 
     @Query("select lp from Pet lp where lp.createdAt < :creationDateTime")
     List<Pet> findAllWithCreationDateTimeBefore(@Param("creationDateTime") LocalDateTime creationDateTime);

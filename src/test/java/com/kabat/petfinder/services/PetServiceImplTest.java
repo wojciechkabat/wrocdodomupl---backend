@@ -1,10 +1,8 @@
 package com.kabat.petfinder.services;
 
 import com.kabat.petfinder.dtos.PetDto;
-import com.kabat.petfinder.entities.Gender;
-import com.kabat.petfinder.entities.Pet;
-import com.kabat.petfinder.entities.PetStatus;
-import com.kabat.petfinder.entities.PetType;
+import com.kabat.petfinder.entities.*;
+import com.kabat.petfinder.repositories.ConfirmTokenRepository;
 import com.kabat.petfinder.repositories.PetRepository;
 import com.kabat.petfinder.utils.PetMapper;
 import org.junit.Test;
@@ -25,11 +23,18 @@ public class PetServiceImplTest {
     @Mock
     private PetRepository petRepository;
 
+    @Mock
+    private ConfirmTokenRepository confirmTokenRepository;
+
     @InjectMocks
     private PetServiceImpl lostPetService;
 
     @Captor
-    private ArgumentCaptor<Pet> lostPetArgumentCaptor;
+    private ArgumentCaptor<Pet> petArgumentCaptor;
+
+
+    @Captor
+    private ArgumentCaptor<ConfirmToken> confirmTokenArgumentCaptor;
 
     @Test
     public void shouldPersistPet() {
@@ -51,6 +56,26 @@ public class PetServiceImplTest {
     }
 
     @Test
+    public void shouldSetActiveToFalseWhenPersistingPet() {
+        PetDto petDto = aPetDto()
+                .name("DogName")
+                .status(PetStatus.LOST)
+                .type(PetType.DOG)
+                .email("someemail")
+                .gender(Gender.MALE)
+                .coordinates(
+                        aCoordinatesDto()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
+        lostPetService.persistPet(petDto);
+        verify(petRepository, times(1)).save(petArgumentCaptor.capture());
+        assertThat(petArgumentCaptor.getValue().isActive()).isFalse();
+    }
+
+    @Test
     public void shouldAddCreatedAtDateOnPersisting() {
         PetDto petDto = aPetDto()
                 .name("DogName")
@@ -68,8 +93,8 @@ public class PetServiceImplTest {
 
         lostPetService.persistPet(petDto);
 
-        verify(petRepository).save(lostPetArgumentCaptor.capture());
-        assertThat(lostPetArgumentCaptor.getValue().getCreatedAt()).isNotNull();
+        verify(petRepository).save(petArgumentCaptor.capture());
+        assertThat(petArgumentCaptor.getValue().getCreatedAt()).isNotNull();
     }
 
     @Test
@@ -90,8 +115,30 @@ public class PetServiceImplTest {
 
         lostPetService.persistPet(petDto);
 
-        verify(petRepository).save(lostPetArgumentCaptor.capture());
-        assertThat(lostPetArgumentCaptor.getValue().getLastSeen()).isNotNull();
-        assertThat(lostPetArgumentCaptor.getValue().getLastSeen()).isEqualTo(lostPetArgumentCaptor.getValue().getCreatedAt());
+        verify(petRepository).save(petArgumentCaptor.capture());
+        assertThat(petArgumentCaptor.getValue().getLastSeen()).isNotNull();
+        assertThat(petArgumentCaptor.getValue().getLastSeen()).isEqualTo(petArgumentCaptor.getValue().getCreatedAt());
+    }
+
+    @Test
+    public void shouldCreateConfirmationTokenWhenPersisting() {
+        PetDto petDto = aPetDto()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .gender(Gender.MALE)
+                .coordinates(
+                        aCoordinatesDto()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
+
+        lostPetService.persistPet(petDto);
+        verify(confirmTokenRepository, times(1)).save(confirmTokenArgumentCaptor.capture());
+
+        assertThat(confirmTokenArgumentCaptor.getValue()).isNotNull();
     }
 }

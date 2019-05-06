@@ -53,4 +53,7 @@ public class Pet {
     @Embedded
     @NotNull
     private Coordinates coordinates;
+    @Column(name = "active")
+    @NotNull
+    private boolean active;
 }
