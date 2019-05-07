@@ -32,6 +32,9 @@ public class PetServiceImplTest {
     @Mock
     private ConfirmTokenRepository confirmTokenRepository;
 
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private PetServiceImpl petService;
 
@@ -205,5 +208,33 @@ public class PetServiceImplTest {
         when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(confirmTokenEntity));
         petService.confirmPet(confirmationToken);
         verify(confirmTokenRepository, times(1)).delete(confirmTokenEntity);
+    }
+
+
+    @Test
+    public void shouldSendEmailWithConfirmationWhenPersistingPet() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        PetDto petDto = aPetDto()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .gender(Gender.MALE)
+                .coordinates(
+                        aCoordinatesDto()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        ConfirmToken confirmTokenEntity = aConfirmToken()
+                .token(confirmationToken)
+                .pet(new Pet())
+                .build();
+
+        when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
+        when(confirmTokenRepository.save(any())).thenReturn(confirmTokenEntity);
+
+        petService.persistPet(petDto);
+        verify(emailService, times(1)).sendPetConfirmationTokenEmail("someemail", confirmTokenEntity);
     }
 }
