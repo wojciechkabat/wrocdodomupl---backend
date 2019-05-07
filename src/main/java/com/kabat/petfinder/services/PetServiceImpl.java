@@ -21,10 +21,12 @@ public class PetServiceImpl implements PetService {
 
     private final PetRepository petRepository;
     private final ConfirmTokenRepository confirmTokenRepository;
+    private final EmailService emailService;
 
-    public PetServiceImpl(PetRepository petRepository, ConfirmTokenRepository confirmTokenRepository) {
+    public PetServiceImpl(PetRepository petRepository, ConfirmTokenRepository confirmTokenRepository, EmailService emailService) {
         this.petRepository = petRepository;
         this.confirmTokenRepository = confirmTokenRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -43,6 +45,7 @@ public class PetServiceImpl implements PetService {
         Pet savedPet = petRepository.save(petEntity);
 
         ConfirmToken confirmationToken = createAndStoreConfirmationToken(savedPet);
+        emailService.sendPetConfirmationTokenEmail(petDto.getEmail(), confirmationToken);
 
         return PetMapper.mapToDto(savedPet);
     }
