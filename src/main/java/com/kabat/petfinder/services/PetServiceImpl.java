@@ -1,6 +1,7 @@
 package com.kabat.petfinder.services;
 
 import com.kabat.petfinder.dtos.PetDto;
+import com.kabat.petfinder.entities.PetPicture;
 import com.kabat.petfinder.entities.PetToken;
 import com.kabat.petfinder.entities.Pet;
 import com.kabat.petfinder.entities.TokenType;
@@ -22,13 +23,15 @@ import static java.util.stream.Collectors.toList;
 public class PetServiceImpl implements PetService {
 
     private final PetRepository petRepository;
-    private final ConfirmTokenRepository confirmTokenRepository;
+    private final ConfirmTokenRepository tokenRepository;
     private final EmailService emailService;
+    private final PictureService pictureService;
 
-    public PetServiceImpl(PetRepository petRepository, ConfirmTokenRepository confirmTokenRepository, EmailService emailService) {
+    public PetServiceImpl(PetRepository petRepository, ConfirmTokenRepository tokenRepository, EmailService emailService, PictureService pictureService) {
         this.petRepository = petRepository;
-        this.confirmTokenRepository = confirmTokenRepository;
+        this.tokenRepository = tokenRepository;
         this.emailService = emailService;
+        this.pictureService = pictureService;
     }
 
     @Override
@@ -63,9 +66,9 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public PetDto confirmPet(UUID confirmToken) {
-        PetToken confirmationTokenEntity = confirmTokenRepository.findById(confirmToken)
+        PetToken confirmationTokenEntity = tokenRepository.findById(confirmToken)
                 .orElseThrow(() -> new IncorrectConfirmationTokenException(
-                        String.format("No confirmation token found with id: %s", confirmToken)
+                        String.format("No token found with id: %s", confirmToken)
                 ));
         if (!TokenType.CONFIRM.equals(confirmationTokenEntity.getTokenType())) {
            throw new IncorrectTokenTypeException("The found token type was not of type CONFIRM");
@@ -73,12 +76,40 @@ public class PetServiceImpl implements PetService {
 
         Pet associatedPet = confirmationTokenEntity.getPet();
         associatedPet.setActive(true);
-        confirmTokenRepository.delete(confirmationTokenEntity);
+        tokenRepository.delete(confirmationTokenEntity);
 
         PetToken deleteToken = createAndStoreToken(associatedPet, TokenType.DELETE);
         emailService.sendPetDeleteTokenEmail(associatedPet.getEmail(), deleteToken);
 
         return PetMapper.mapToDto(associatedPet);
+    }
+
+    @Override
+    @Transactional
+    public void deletePet(UUID deleteToken) {
+        PetToken deleteTokenEntity = tokenRepository.findById(deleteToken)
+                .orElseThrow(() -> new IncorrectConfirmationTokenException(
+                        String.format("No token found with id: %s", deleteToken)
+                ));
+        if (!TokenType.DELETE.equals(deleteTokenEntity.getTokenType())) {
+            throw new IncorrectTokenTypeException("The found token type was not of type CONFIRM");
+        }
+
+        Pet associatedPet = deleteTokenEntity.getPet();
+        deletePet(associatedPet);
+        tokenRepository.delete(deleteTokenEntity);
+    }
+
+    @Override
+    @Transactional
+    public void deletePet(Pet pet) {
+        pictureService.deleteFromRemoteServerByIds(
+                pet.getPictures()
+                        .stream()
+                        .map(PetPicture::getPictureId)
+                        .collect(toList())
+        );
+        petRepository.delete(pet);
     }
 
     private PetToken createAndStoreToken(Pet pet, TokenType tokenType) {
@@ -87,6 +118,6 @@ public class PetServiceImpl implements PetService {
                 .pet(pet)
                 .tokenType(tokenType)
                 .build();
-        return confirmTokenRepository.save(petToken);
+        return tokenRepository.save(petToken);
     }
 }

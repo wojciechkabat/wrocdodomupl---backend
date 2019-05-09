@@ -14,13 +14,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.kabat.petfinder.dtos.CoordinatesDto.aCoordinatesDto;
 import static com.kabat.petfinder.dtos.PetDto.aPetDto;
+import static com.kabat.petfinder.entities.PetPicture.aPetPicture;
 import static com.kabat.petfinder.entities.PetToken.aPetToken;
 import static com.kabat.petfinder.entities.Pet.aPet;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,6 +37,9 @@ public class PetServiceImplTest {
     private ConfirmTokenRepository confirmTokenRepository;
 
     @Mock
+    private PictureService pictureService;
+
+    @Mock
     private EmailService emailService;
 
     @InjectMocks
@@ -42,9 +48,11 @@ public class PetServiceImplTest {
     @Captor
     private ArgumentCaptor<Pet> petArgumentCaptor;
 
-
     @Captor
     private ArgumentCaptor<PetToken> petTokenArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<List<String>> picturesCaptor;
 
     @Test
     public void shouldPersistPet() {
@@ -348,5 +356,27 @@ public class PetServiceImplTest {
 
         petService.confirmPet(confirmationToken);
         verify(emailService, times(1)).sendPetDeleteTokenEmail("someemail", petTokenEntity);
+    }
+
+    @Test
+    public void shouldCallAPIDeleteAllPicturesForAPet() {
+        Pet pet = aPet()
+                .pictures(
+                        asList(
+                                aPetPicture()
+                                        .pictureId("pictureId1")
+                                        .build(),
+                                aPetPicture()
+                                        .pictureId("pictureId2")
+                                        .build(),
+                                aPetPicture()
+                                        .pictureId("pictureId3")
+                                        .build()
+                        )
+                )
+                .build();
+        petService.deletePet(pet);
+        verify(pictureService, times(1)).deleteFromRemoteServerByIds(picturesCaptor.capture());
+        assertThat(picturesCaptor.getValue()).containsExactly("pictureId1", "pictureId2", "pictureId3");
     }
 }

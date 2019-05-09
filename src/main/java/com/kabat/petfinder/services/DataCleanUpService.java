@@ -22,10 +22,12 @@ public class DataCleanUpService {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
     private final PetRepository petRepository;
+    private final PetService petService;
     private final PictureService pictureService;
 
-    public DataCleanUpService(PetRepository petRepository, PictureService pictureService) {
+    public DataCleanUpService(PetRepository petRepository, PetService petService, PictureService pictureService) {
         this.petRepository = petRepository;
+        this.petService = petService;
         this.pictureService = pictureService;
     }
 
@@ -39,13 +41,7 @@ public class DataCleanUpService {
         LOG.info("Number of pets to delete: {}", petsOlderThan30Days.size());
 
         for (Pet petToDelete : petsOlderThan30Days) {
-            pictureService.deleteFromRemoteServerByIds(
-                    petToDelete.getPictures()
-                            .stream()
-                            .map(PetPicture::getPictureId)
-                            .collect(toList())
-            );
-            petRepository.delete(petToDelete);
+            petService.deletePet(petToDelete);
             LOG.info("Successfully deleted pet: {}", petToDelete.getId());
         }
 

@@ -32,4 +32,9 @@ public class PetController {
     public PetDto confirmPet(@RequestParam("token") UUID confirmationToken) {
         return petService.confirmPet(confirmationToken);
     }
+
+    @DeleteMapping("delete")
+    public void deletePet(@RequestParam("token") UUID deleteToken) {
+        petService.deletePet(deleteToken);
+    }
 }
