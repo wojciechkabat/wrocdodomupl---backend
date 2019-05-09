@@ -320,4 +320,33 @@ public class PetServiceImplTest {
         assertThat(petTokenArgumentCaptor.getValue()).isNotNull();
         assertThat(petTokenArgumentCaptor.getValue().getTokenType()).isEqualTo(TokenType.DELETE);
     }
+
+    @Test
+    public void shouldSendEmailWithDeleteTokenWhenConfirmingPet() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        PetToken petTokenEntity = aPetToken()
+                .token(confirmationToken)
+                .pet(pet)
+                .tokenType(TokenType.CONFIRM)
+                .build();
+
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(petTokenEntity));
+        when(confirmTokenRepository.save(any())).thenReturn(petTokenEntity);
+
+        petService.confirmPet(confirmationToken);
+        verify(emailService, times(1)).sendPetDeleteTokenEmail("someemail", petTokenEntity);
+    }
 }

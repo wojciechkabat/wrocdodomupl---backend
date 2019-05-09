@@ -30,11 +30,11 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendPetConfirmationTokenEmail(String email, PetToken petToken) {
+    public void sendPetConfirmationTokenEmail(String email, PetToken confirmationToken) {
         Context context = new Context();
-        context.setVariable("link", "http://localhost:4200/confirmation?token=" + petToken.getToken());
+        context.setVariable("link", "http://localhost:4200/confirmation?token=" + confirmationToken.getToken());
 
-        String body = templateEngine.process("confirmation-email-pl", context);
+        String body = templateEngine.process("confirmation-token-email-pl", context);
         EmailContentDto emailContentDto = EmailContentDto.anEmailContentDto()
                 .receiverAddress(email)
                 .subject("Potwierdź dodanie ogłoszenia")
@@ -48,6 +48,19 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendPetDeleteTokenEmail(String email, PetToken deleteToken) {
+        Context context = new Context();
+        context.setVariable("link", "http://localhost:4200/delete?token=" + deleteToken.getToken());
+
+        String body = templateEngine.process("delete-token-email-pl", context);
+        EmailContentDto emailContentDto = EmailContentDto.anEmailContentDto()
+                .receiverAddress(email)
+                .subject("Twoje ogłoszenie zostało potwierdzone!")
+                .content(body)
+                .build();
+        LOG.info("Sending pet delete token email to: " + email);
+        MimeMessage mimeMessage = prepareEmail(emailContentDto);
+        javaMailSender.send(mimeMessage);
+        LOG.info("Email was successfully sent to: " + email);
     }
 
     private MimeMessage prepareEmail(EmailContentDto contentDto) {

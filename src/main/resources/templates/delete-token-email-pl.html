@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style type="text/css">
+        .logo-background {
+            background-color: #353942;
+        }
+
+        .email-text {
+            font-family: Roboto, serif;
+            font-size: 15px;
+            margin-top: 30px;
+            margin-left: 60px;
+            margin-right: 60px;
+        }
+    </style>
+</head>
+<body>
+<table width="100%" cellpadding="0" cellspacing="0">
+    <tr class="logo-background">
+        <td align="center" height="80px">
+            <a href="http://localhost:4200">
+                <img src="https://res.cloudinary.com/giftboxapplication/image/upload/v1557248243/wrocdodomulogo.png"
+                     height="50px">
+            </a>
+        </td>
+    </tr>
+    <tr align="left" height="100">
+        <td>
+            <div class="email-text">
+                Dziękujemy za dodanie ogłoszenia w portalu wrocdodomu.pl. Mamy nadzieję, że dzięki nam pupil niedługo
+                odnajdzie swój dom.
+                Aby Twoje ogłoszenie było widoczne dla wszystkich, kliknij w poniższy link potwierdzający:
+                <div style="margin: 50px 0;" align="center" th:text="${link}">link</div>
+                Po potwierdzeniu, Twoje ogłoszenie będzie widoczne dla wszystkich użytkowników portalu przez 30 dni od
+                daty dodania. W każdej chwili będzie możliwość usunięcia ogłoszenia.<br>
+                W razie jakichkolwiek pytań lub wątpliwości prosimy o kontakt pod adresem email: pomoc@wrocdodomu.pl
+            </div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
