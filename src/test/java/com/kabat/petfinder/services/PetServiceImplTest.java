@@ -44,7 +44,7 @@ public class PetServiceImplTest {
 
 
     @Captor
-    private ArgumentCaptor<PetToken> confirmTokenArgumentCaptor;
+    private ArgumentCaptor<PetToken> petTokenArgumentCaptor;
 
     @Test
     public void shouldPersistPet() {
@@ -147,10 +147,10 @@ public class PetServiceImplTest {
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
 
         petService.persistPet(petDto);
-        verify(confirmTokenRepository, times(1)).save(confirmTokenArgumentCaptor.capture());
+        verify(confirmTokenRepository, times(1)).save(petTokenArgumentCaptor.capture());
 
-        assertThat(confirmTokenArgumentCaptor.getValue()).isNotNull();
-        assertThat(confirmTokenArgumentCaptor.getValue().getTokenType()).isEqualTo(TokenType.CONFIRM);
+        assertThat(petTokenArgumentCaptor.getValue()).isNotNull();
+        assertThat(petTokenArgumentCaptor.getValue().getTokenType()).isEqualTo(TokenType.CONFIRM);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class PetServiceImplTest {
         petService.confirmPet(confirmationToken);
     }
 
-    @Test(expected = IncorrectConfirmationTokenException.class)
+    @Test(expected = IncorrectTokenTypeException.class)
     public void shouldThrowExceptionWhenTryingToConfirmPetWithNULLToken() {
         UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
         Pet pet = aPet()
@@ -260,9 +260,9 @@ public class PetServiceImplTest {
                 .pet(pet)
                 .tokenType(null)
                 .build();
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(petTokenEntity));
         petService.confirmPet(confirmationToken);
     }
-
 
 
     @Test
@@ -290,5 +290,34 @@ public class PetServiceImplTest {
 
         petService.persistPet(petDto);
         verify(emailService, times(1)).sendPetConfirmationTokenEmail("someemail", petTokenEntity);
+    }
+
+    @Test
+    public void shouldCreateADeleteTokenWhenConfirmingPet() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        PetToken confirmTokenEntity = aPetToken()
+                .token(confirmationToken)
+                .pet(pet)
+                .tokenType(TokenType.CONFIRM)
+                .build();
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(confirmTokenEntity));
+        petService.confirmPet(confirmationToken);
+        verify(confirmTokenRepository, times(1)).save(petTokenArgumentCaptor.capture());
+
+        assertThat(petTokenArgumentCaptor.getValue()).isNotNull();
+        assertThat(petTokenArgumentCaptor.getValue().getTokenType()).isEqualTo(TokenType.DELETE);
     }
 }

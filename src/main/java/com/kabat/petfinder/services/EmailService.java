@@ -5,4 +5,6 @@ import com.kabat.petfinder.entities.PetToken;
 
 public interface EmailService {
     void sendPetConfirmationTokenEmail(String email, PetToken petToken);
+
+    void sendPetDeleteTokenEmail(String email, PetToken deleteToken);
 }

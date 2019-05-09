@@ -46,19 +46,10 @@ public class PetServiceImpl implements PetService {
         }
         Pet savedPet = petRepository.save(petEntity);
 
-        PetToken confirmationToken = createAndStoreConfirmationToken(savedPet);
+        PetToken confirmationToken = createAndStoreToken(savedPet, TokenType.CONFIRM);
         emailService.sendPetConfirmationTokenEmail(petDto.getEmail(), confirmationToken);
 
         return PetMapper.mapToDto(savedPet);
-    }
-
-    private PetToken createAndStoreConfirmationToken(Pet savedPet) {
-        PetToken petToken = PetToken.aPetToken()
-                .token(UUID.randomUUID())
-                .pet(savedPet)
-                .tokenType(TokenType.CONFIRM)
-                .build();
-        return confirmTokenRepository.save(petToken);
     }
 
     @Override
@@ -83,6 +74,19 @@ public class PetServiceImpl implements PetService {
         Pet associatedPet = confirmationTokenEntity.getPet();
         associatedPet.setActive(true);
         confirmTokenRepository.delete(confirmationTokenEntity);
+
+        PetToken deleteToken = createAndStoreToken(associatedPet, TokenType.DELETE);
+        emailService.sendPetDeleteTokenEmail(associatedPet.getEmail(), deleteToken);
+
         return PetMapper.mapToDto(associatedPet);
+    }
+
+    private PetToken createAndStoreToken(Pet pet, TokenType tokenType) {
+        PetToken petToken = PetToken.aPetToken()
+                .token(UUID.randomUUID())
+                .pet(pet)
+                .tokenType(tokenType)
+                .build();
+        return confirmTokenRepository.save(petToken);
     }
 }

@@ -46,6 +46,10 @@ public class EmailServiceImpl implements EmailService {
         LOG.info("Email was successfully sent to: " + email);
     }
 
+    @Override
+    public void sendPetDeleteTokenEmail(String email, PetToken deleteToken) {
+    }
+
     private MimeMessage prepareEmail(EmailContentDto contentDto) {
         MimeMessage mail = javaMailSender.createMimeMessage();
         try {
