@@ -16,13 +16,16 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderMethodName = "aConfirmToken")
-@Table(name = "confirm_tokens")
-public class ConfirmToken {
+@Builder(builderMethodName = "aPetToken")
+@Table(name = "pet_tokens")
+public class PetToken {
     @Id
     @Column(name = "token")
     private UUID token;
     @OneToOne
     @JoinColumn(name = "pet_id")
     private Pet pet;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private TokenType tokenType;
 }

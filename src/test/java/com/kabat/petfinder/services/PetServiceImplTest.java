@@ -3,6 +3,7 @@ package com.kabat.petfinder.services;
 import com.kabat.petfinder.dtos.PetDto;
 import com.kabat.petfinder.entities.*;
 import com.kabat.petfinder.exceptions.IncorrectConfirmationTokenException;
+import com.kabat.petfinder.exceptions.IncorrectTokenTypeException;
 import com.kabat.petfinder.repositories.ConfirmTokenRepository;
 import com.kabat.petfinder.repositories.PetRepository;
 import com.kabat.petfinder.utils.PetMapper;
@@ -18,7 +19,7 @@ import java.util.UUID;
 
 import static com.kabat.petfinder.dtos.CoordinatesDto.aCoordinatesDto;
 import static com.kabat.petfinder.dtos.PetDto.aPetDto;
-import static com.kabat.petfinder.entities.ConfirmToken.aConfirmToken;
+import static com.kabat.petfinder.entities.PetToken.aPetToken;
 import static com.kabat.petfinder.entities.Pet.aPet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +44,7 @@ public class PetServiceImplTest {
 
 
     @Captor
-    private ArgumentCaptor<ConfirmToken> confirmTokenArgumentCaptor;
+    private ArgumentCaptor<PetToken> confirmTokenArgumentCaptor;
 
     @Test
     public void shouldPersistPet() {
@@ -149,6 +150,7 @@ public class PetServiceImplTest {
         verify(confirmTokenRepository, times(1)).save(confirmTokenArgumentCaptor.capture());
 
         assertThat(confirmTokenArgumentCaptor.getValue()).isNotNull();
+        assertThat(confirmTokenArgumentCaptor.getValue().getTokenType()).isEqualTo(TokenType.CONFIRM);
     }
 
     @Test
@@ -169,9 +171,10 @@ public class PetServiceImplTest {
                 .build();
         when(confirmTokenRepository.findById(confirmationToken)).thenReturn(
                 Optional.of(
-                        aConfirmToken()
+                        aPetToken()
                                 .token(confirmationToken)
                                 .pet(pet)
+                                .tokenType(TokenType.CONFIRM)
                                 .build()
                 )
         );
@@ -201,14 +204,65 @@ public class PetServiceImplTest {
                                 .latitude(BigDecimal.ONE)
                                 .build())
                 .build();
-        ConfirmToken confirmTokenEntity = aConfirmToken()
+        PetToken petTokenEntity = aPetToken()
                 .token(confirmationToken)
                 .pet(pet)
+                .tokenType(TokenType.CONFIRM)
                 .build();
-        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(confirmTokenEntity));
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(petTokenEntity));
         petService.confirmPet(confirmationToken);
-        verify(confirmTokenRepository, times(1)).delete(confirmTokenEntity);
+        verify(confirmTokenRepository, times(1)).delete(petTokenEntity);
     }
+
+    @Test(expected = IncorrectTokenTypeException.class)
+    public void shouldThrowExceptionWhenTryingToConfirmPetWithDELETEToken() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        PetToken petTokenEntity = aPetToken()
+                .token(confirmationToken)
+                .pet(pet)
+                .tokenType(TokenType.DELETE)
+                .build();
+        when(confirmTokenRepository.findById(confirmationToken)).thenReturn(Optional.of(petTokenEntity));
+        petService.confirmPet(confirmationToken);
+    }
+
+    @Test(expected = IncorrectConfirmationTokenException.class)
+    public void shouldThrowExceptionWhenTryingToConfirmPetWithNULLToken() {
+        UUID confirmationToken = UUID.fromString("0a9a6ef6-a47d-44d9-9d01-42c7d38d96fb");
+        Pet pet = aPet()
+                .name("DogName")
+                .type(PetType.DOG)
+                .status(PetStatus.LOST)
+                .email("someemail")
+                .pictures(Collections.emptyList())
+                .active(false)
+                .coordinates(
+                        Coordinates.aCoordinates()
+                                .longitude(BigDecimal.TEN)
+                                .latitude(BigDecimal.ONE)
+                                .build())
+                .build();
+        PetToken petTokenEntity = aPetToken()
+                .token(confirmationToken)
+                .pet(pet)
+                .tokenType(null)
+                .build();
+        petService.confirmPet(confirmationToken);
+    }
+
 
 
     @Test
@@ -226,15 +280,15 @@ public class PetServiceImplTest {
                                 .latitude(BigDecimal.ONE)
                                 .build())
                 .build();
-        ConfirmToken confirmTokenEntity = aConfirmToken()
+        PetToken petTokenEntity = aPetToken()
                 .token(confirmationToken)
                 .pet(new Pet())
                 .build();
 
         when(petRepository.save(any())).thenReturn(PetMapper.mapToEntity(petDto));
-        when(confirmTokenRepository.save(any())).thenReturn(confirmTokenEntity);
+        when(confirmTokenRepository.save(any())).thenReturn(petTokenEntity);
 
         petService.persistPet(petDto);
-        verify(emailService, times(1)).sendPetConfirmationTokenEmail("someemail", confirmTokenEntity);
+        verify(emailService, times(1)).sendPetConfirmationTokenEmail("someemail", petTokenEntity);
     }
 }

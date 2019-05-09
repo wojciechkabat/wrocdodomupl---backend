@@ -1,9 +1,11 @@
 package com.kabat.petfinder.services;
 
 import com.kabat.petfinder.dtos.PetDto;
-import com.kabat.petfinder.entities.ConfirmToken;
+import com.kabat.petfinder.entities.PetToken;
 import com.kabat.petfinder.entities.Pet;
+import com.kabat.petfinder.entities.TokenType;
 import com.kabat.petfinder.exceptions.IncorrectConfirmationTokenException;
+import com.kabat.petfinder.exceptions.IncorrectTokenTypeException;
 import com.kabat.petfinder.repositories.ConfirmTokenRepository;
 import com.kabat.petfinder.repositories.PetRepository;
 import com.kabat.petfinder.utils.PetMapper;
@@ -44,18 +46,19 @@ public class PetServiceImpl implements PetService {
         }
         Pet savedPet = petRepository.save(petEntity);
 
-        ConfirmToken confirmationToken = createAndStoreConfirmationToken(savedPet);
+        PetToken confirmationToken = createAndStoreConfirmationToken(savedPet);
         emailService.sendPetConfirmationTokenEmail(petDto.getEmail(), confirmationToken);
 
         return PetMapper.mapToDto(savedPet);
     }
 
-    private ConfirmToken createAndStoreConfirmationToken(Pet savedPet) {
-        ConfirmToken confirmToken = ConfirmToken.aConfirmToken()
+    private PetToken createAndStoreConfirmationToken(Pet savedPet) {
+        PetToken petToken = PetToken.aPetToken()
                 .token(UUID.randomUUID())
                 .pet(savedPet)
+                .tokenType(TokenType.CONFIRM)
                 .build();
-        return confirmTokenRepository.save(confirmToken);
+        return confirmTokenRepository.save(petToken);
     }
 
     @Override
@@ -69,10 +72,14 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public PetDto confirmPet(UUID confirmToken) {
-        ConfirmToken confirmationTokenEntity = confirmTokenRepository.findById(confirmToken)
+        PetToken confirmationTokenEntity = confirmTokenRepository.findById(confirmToken)
                 .orElseThrow(() -> new IncorrectConfirmationTokenException(
                         String.format("No confirmation token found with id: %s", confirmToken)
                 ));
+        if (!TokenType.CONFIRM.equals(confirmationTokenEntity.getTokenType())) {
+           throw new IncorrectTokenTypeException("The found token type was not of type CONFIRM");
+        }
+
         Pet associatedPet = confirmationTokenEntity.getPet();
         associatedPet.setActive(true);
         confirmTokenRepository.delete(confirmationTokenEntity);

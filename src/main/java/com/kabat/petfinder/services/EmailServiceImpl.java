@@ -1,7 +1,7 @@
 package com.kabat.petfinder.services;
 
 import com.kabat.petfinder.dtos.EmailContentDto;
-import com.kabat.petfinder.entities.ConfirmToken;
+import com.kabat.petfinder.entities.PetToken;
 import com.kabat.petfinder.exceptions.EmailCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +30,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendPetConfirmationTokenEmail(String email, ConfirmToken confirmToken) {
+    public void sendPetConfirmationTokenEmail(String email, PetToken petToken) {
         Context context = new Context();
-        context.setVariable("link", "http://localhost:4200/confirmation?token=" + confirmToken.getToken());
+        context.setVariable("link", "http://localhost:4200/confirmation?token=" + petToken.getToken());
 
         String body = templateEngine.process("confirmation-email-pl", context);
         EmailContentDto emailContentDto = EmailContentDto.anEmailContentDto()
