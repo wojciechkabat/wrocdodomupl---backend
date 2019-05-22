@@ -3,9 +3,9 @@ package com.kabat.petfinder.services;
 import com.cloudinary.Cloudinary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +14,7 @@ import static com.kabat.petfinder.utils.CloudinaryConstants.*;
 
 
 @Service
+@DependsOn("cloudinaryConstants")
 public class CloudinaryPictureServiceImpl implements PictureService {
     private Cloudinary cloudinary;
     private Map cloudinaryConfig;

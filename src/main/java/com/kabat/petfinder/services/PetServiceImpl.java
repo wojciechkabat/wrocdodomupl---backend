@@ -86,7 +86,7 @@ public class PetServiceImpl implements PetService {
 
     @Override
     @Transactional
-    public void deletePet(UUID deleteToken) {
+    public PetDto deletePet(UUID deleteToken) {
         PetToken deleteTokenEntity = tokenRepository.findById(deleteToken)
                 .orElseThrow(() -> new IncorrectConfirmationTokenException(
                         String.format("No token found with id: %s", deleteToken)
@@ -98,6 +98,7 @@ public class PetServiceImpl implements PetService {
         Pet associatedPet = deleteTokenEntity.getPet();
         deletePet(associatedPet);
         tokenRepository.delete(deleteTokenEntity);
+        return PetMapper.mapToDto(associatedPet);
     }
 
     @Override

@@ -10,6 +10,6 @@ public interface PetService {
     PetDto persistPet(PetDto petDto);
     List<PetDto> getAllActivePetsFromLast30Days();
     PetDto confirmPet(UUID confirmToken);
-    void deletePet(UUID deleteToken);
+    PetDto deletePet(UUID deleteToken);
     void deletePet(Pet pet);
 }

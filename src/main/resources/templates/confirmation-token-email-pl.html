@@ -33,7 +33,9 @@
                 Dziękujemy za dodanie ogłoszenia w portalu wrocdodomu.pl. Mamy nadzieję, że dzięki nam pupil niedługo
                 odnajdzie swój dom.
                 Aby Twoje ogłoszenie było widoczne dla wszystkich, kliknij w poniższy link potwierdzający:
-                <div style="margin: 50px 0;" align="center" th:text="${link}">link</div>
+                <div style="margin: 50px 0;" align="center">
+                    <a th:href="${link}" th:text="${link}">link</a>
+                </div>
                 Po potwierdzeniu, Twoje ogłoszenie będzie widoczne dla wszystkich użytkowników portalu przez 30 dni od
                 daty dodania. W każdej chwili będzie możliwość usunięcia ogłoszenia.<br>
                 W razie jakichkolwiek pytań lub wątpliwości prosimy o kontakt pod adresem email: pomoc@wrocdodomu.pl
