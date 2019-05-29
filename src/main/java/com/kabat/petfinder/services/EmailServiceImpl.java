@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendPetConfirmationTokenEmail(String email, PetToken confirmationToken) {
         Context context = new Context();
-        context.setVariable("link", "http://localhost:4200/confirmation?token=" + confirmationToken.getToken());
+        context.setVariable("link", "https://wrocdodomu.pl/confirmation?token=" + confirmationToken.getToken());
 
         String body = templateEngine.process("confirmation-token-email-pl", context);
         EmailContentDto emailContentDto = EmailContentDto.anEmailContentDto()
@@ -49,7 +49,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendPetDeleteTokenEmail(String email, PetToken deleteToken) {
         Context context = new Context();
-        context.setVariable("link", "http://localhost:4200/delete?token=" + deleteToken.getToken());
+        context.setVariable("link", "https://wrocdodomu.pl/delete?token=" + deleteToken.getToken());
 
         String body = templateEngine.process("delete-token-email-pl", context);
         EmailContentDto emailContentDto = EmailContentDto.anEmailContentDto()
